@@ -1,0 +1,23 @@
+{
+  "name": "git-helpers-chrome-extension",
+  "version": "1.0.0",
+  "author": "Arthur <arthur.nesterenko.dev@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "prebuild": "rm -rf dist .cache .parcel-cache",
+    "build:tailwind": "tailwindcss build src/style.css -c ./tailwind.config.js -o dist/style.css",
+    "watch": "parcel watch --no-hmr src/{index.js,index.html}",
+    "build": "yarn build:tailwind && cp -R 'src/manifest.json' 'src/assets' 'dist/' && parcel build src/{index.js,index.html}"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.3",
+    "autoprefixer": "^10.4.13",
+    "crx-hotreload": "^1.0.6",
+    "parcel": "^2.7.0",
+    "postcss-import": "^15.0.0",
+    "tailwindcss": "^3.2.2"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}
