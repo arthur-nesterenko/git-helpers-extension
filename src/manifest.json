@@ -1,0 +1,29 @@
+{
+  "name": "Git Helpers",
+  "description": "Git utilities",
+  "version": "1.0",
+  "manifest_version": 3,
+  "background": {
+    "script": [
+      "background.js"
+    ]
+  },
+  "icons": {
+    "16": "./assets/icon16.png",
+    "19": "./assets/icon19.png",
+    "38": "./assets/icon38.png",
+    "48": "./assets/icon48.png",
+    "128": "./assets/icon128.png"
+  },
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "GIT helpers",
+    "default_icon": {
+      "16": "./assets/icon16.png",
+      "19": "./assets/icon19.png",
+      "38": "./assets/icon38.png",
+      "48": "./assets/icon48.png",
+      "128": "./assets/icon128.png"
+    }
+  }
+}
