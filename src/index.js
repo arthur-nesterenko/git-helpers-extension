@@ -1,4 +1,17 @@
-import { toLower, snakeCase } from "lodash";
+import { toLower, snakeCase, debounce, isEmpty } from "lodash";
+
+// Git Helpers
+
+const showToastMessage = (text) => {
+  const alert = document.getElementById("alert");
+  alert.classList.toggle("hidden");
+  alert.innerText = text;
+  setTimeout(() => {
+    alert.classList.toggle("hidden");
+  }, 3000);
+};
+
+const convertTicketNameToNormalBranchName = (name) => snakeCase(toLower(name));
 
 const themeManager = () => {
   const activeClass = "bg-indigo-500";
@@ -15,7 +28,6 @@ const themeManager = () => {
 
     button.addEventListener("click", (event) => {
       const theme = event.currentTarget.dataset.theme;
-
       localStorage.setItem("theme", theme);
       themeBtns.forEach((btn) => {
         btn.classList.remove(activeClass);
@@ -47,41 +59,54 @@ const themeManager = () => {
 
 themeManager();
 
-// Git Helpers
-
-const showToastMessage = (text) => {
-  const alert = document.getElementById("alert");
-  alert.classList.toggle("hidden");
-  alert.innerText = text;
-  setTimeout(() => {
-    alert.classList.toggle("hidden");
-  }, 3000);
-};
-
-const convertTicketNameToNormalBranchName = (name) => snakeCase(toLower(name));
-
 // FIELDS
 const ticketNameInput = document.getElementById("ticket-name");
 const branchNameInput = document.getElementById("branch-name");
+const gitCheckoutInput = document.getElementById("git-checkout");
 const copyBranchNameButton = document.getElementById("copy-branch-name-button");
-
-const convertToBranchNameButton = document.getElementById(
-  "convert-to-branch-name"
+const copyGitCheckoutButton = document.getElementById(
+  "copy-git-checkout-button"
 );
 
+const setFormattedValue = (value) => {
+  if (isEmpty(value.trim())) return;
+
+  const formattedText = convertTicketNameToNormalBranchName(value);
+  branchNameInput.value = formattedText;
+  gitCheckoutInput.value = `git checkout -b ${formattedText}`;
+
+  const disableCopyButton = isEmpty(formattedText.trim());
+  copyBranchNameButton.disabled = disableCopyButton;
+  copyGitCheckoutButton.disabled = disableCopyButton;
+};
+
 // EVENTS
-convertToBranchNameButton.addEventListener("click", () => {
-  const ticketName = ticketNameInput.value;
-  if (ticketName) {
-    branchNameInput.value = convertTicketNameToNormalBranchName(ticketName);
-  }
+ticketNameInput.addEventListener(
+  "input",
+  debounce((event) => {
+    setFormattedValue(event.target.value);
+  }, 300)
+);
+
+ticketNameInput.addEventListener("paste", (event) => {
+  const paste = (event.clipboardData || window.clipboardData).getData("text");
+  setFormattedValue(paste);
 });
 
+const copyTextFromInputToClipboard = (input) => {
+  input.select();
+  navigator.clipboard.writeText(input.value);
+  showToastMessage("Branch name has been copied to clipboard");
+};
+
 copyBranchNameButton.addEventListener("click", async () => {
-  const branchName = branchNameInput.value;
-  if (branchName) {
-    branchNameInput.select();
-    await navigator.clipboard.writeText(branchName);
-    showToastMessage("Branch name has been copied to clipboard");
-  }
+  copyTextFromInputToClipboard(branchNameInput);
+  await navigator.clipboard.writeText(branchName);
+  showToastMessage("Branch name has been copied to clipboard");
+});
+
+copyGitCheckoutButton.addEventListener("click", async () => {
+  copyTextFromInputToClipboard(gitCheckoutInput);
+  await navigator.clipboard.writeText(branchName);
+  showToastMessage("Branch name has been copied to clipboard");
 });

@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.input {
+  @apply block w-full text-sm text-slate-900 dark:text-slate-200 rounded-md bg-slate-200  border-gray-300  pl-5 pr-12 focus:border-indigo-500 focus:ring-indigo-500 overflow-hidden;
+  @apply dark:focus:border-indigo-900 dark:focus:ring-indigo-900 dark:bg-slate-800 dark:border-slate-600;
+  @apply transition-all duration-100 delay-100;
+}
+
+.copy-button {
+  @apply h-full text-sm rounded-r-md flex items-center  border-transparent bg-transparent py-0 px-2 text-gray-500;
+  @apply hover:bg-gray-300 focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-opacity-25;
+  @apply dark:hover:bg-slate-700 dark:focus:border-indigo-900 dark:focus:ring-indigo-900;
+  @apply disabled:cursor-not-allowed cursor-pointer;
+  @apply transition-all duration-100 delay-75;
+}
+
+.copy-icon {
+  @apply h-5 w-5;
+}
