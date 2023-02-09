@@ -39,6 +39,25 @@
 
     <div class="grid gap-4">
 
+
+        <section class="border-b pb-2">
+            <h1 class="font-medium">Settings</h1>
+            <form id="settings-form" class="mt-4 grid gap-2">
+                <label for="snake" class="font-medium flex gap-2 dark:text-white text-slate-900">
+                    <input type="radio" id="snake" name="case-type" value="snake">
+                    <span>Snake case <i>(branch_name)</i></span>
+                </label>
+                <label for="kebab" class="font-medium  flex gap-2 dark:text-white text-slate-900">
+                    <input type="radio" id="kebab" name="case-type" name="kebab" value="kebab">
+                    <span>Kebab case<i>(branch-name)</i></span>
+                </label>
+
+            </form>
+
+        </section>
+
+
+
         <div>
             <label for="ticket-name" class="block text-sm font-medium text-slate-900 dark:text-slate-200">Ticket
                 name</label>
