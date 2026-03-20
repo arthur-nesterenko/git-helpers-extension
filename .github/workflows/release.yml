@@ -2,14 +2,11 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*"
+    branches: [main]
 
 jobs:
-  release:
+  ci:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -25,14 +22,36 @@ jobs:
       - name: Run tests
         run: npm test
 
+  release:
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Build
         run: npm run build
 
+      - name: Get version
+        id: version
+        run: echo "version=v$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
+
       - name: Create zip
-        run: cd dist && zip -r ../git-helpers-${{ github.ref_name }}.zip .
+        run: cd dist && zip -r ../git-helpers-${{ steps.version.outputs.version }}.zip .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: git-helpers-${{ github.ref_name }}.zip
+          tag_name: ${{ steps.version.outputs.version }}
+          files: git-helpers-${{ steps.version.outputs.version }}.zip
           generate_release_notes: true
