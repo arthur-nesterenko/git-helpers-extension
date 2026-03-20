@@ -1,11 +1,4 @@
-import {
-  toLower,
-  snakeCase,
-  debounce,
-  isEmpty,
-  kebabCase,
-  truncate,
-} from "lodash";
+import { toSnakeCase, toKebabCase, debounce, truncate } from "./utils.js";
 
 const FORMAT_METHOD_KEY = "formatMethod";
 
@@ -21,15 +14,15 @@ const showToastMessage = (text) => {
 };
 
 const createNameConverter = (type) => {
-  const converter = {
-    snake: snakeCase,
-    kebab: kebabCase,
-  }[type];
-
+  const converters = {
+    snake: toSnakeCase,
+    kebab: toKebabCase,
+  };
+  const converter = converters[type];
   if (!converter) {
     throw new Error(`Converter type ${type} is not supported`);
   }
-  return (name) => converter(toLower(name));
+  return converter;
 };
 
 const themeManager = () => {
@@ -92,10 +85,7 @@ const setFormattedValue = (value) => {
 
   const type = localStorage.getItem(FORMAT_METHOD_KEY) || "snake";
   const convertTicketNameToNormalBranchName = createNameConverter(type);
-  const formattedText = truncate(convertTicketNameToNormalBranchName(value), {
-    length: 255,
-    omission: "",
-  });
+  const formattedText = truncate(convertTicketNameToNormalBranchName(value), 255);
   branchNameInput.value = formattedText;
   gitCheckoutInput.value = `git checkout -b ${formattedText}`;
 
