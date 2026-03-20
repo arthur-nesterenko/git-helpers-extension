@@ -33,47 +33,28 @@ const createNameConverter = (type) => {
 };
 
 const themeManager = () => {
-  const activeClass = "bg-indigo-500";
-  const inactiveClass = "bg-indigo-300";
+  const resolvedTheme = localStorage.theme ||
+    (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  localStorage.setItem("theme", resolvedTheme);
+
+  document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+
   const themeBtns = document.querySelectorAll("[data-theme]");
   themeBtns.forEach((button) => {
-    if (button.dataset.theme === localStorage.theme) {
-      button.classList.add(activeClass);
-      button.classList.remove(inactiveClass);
-    } else {
-      button.classList.remove(activeClass);
-      button.classList.add(inactiveClass);
-    }
+    const isActive = button.dataset.theme === resolvedTheme;
+    button.classList.toggle("bg-indigo-500", isActive);
+    button.classList.toggle("bg-indigo-300", !isActive);
 
     button.addEventListener("click", (event) => {
       const theme = event.currentTarget.dataset.theme;
       localStorage.setItem("theme", theme);
+      document.documentElement.classList.toggle("dark", theme === "dark");
       themeBtns.forEach((btn) => {
-        btn.classList.remove(activeClass);
-        btn.classList.add(inactiveClass);
+        btn.classList.toggle("bg-indigo-500", btn.dataset.theme === theme);
+        btn.classList.toggle("bg-indigo-300", btn.dataset.theme !== theme);
       });
-      button.classList.add(activeClass);
-      button.classList.remove(inactiveClass);
-
-      if (theme === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
     });
   });
-
-  if (
-    localStorage.theme === "dark" ||
-    (!("theme" in localStorage) &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches)
-  ) {
-    localStorage.theme = "dark";
-    document.documentElement.classList.add("dark");
-  } else {
-    document.documentElement.classList.remove("dark");
-    localStorage.theme = "light";
-  }
 };
 
 const init = () => {
