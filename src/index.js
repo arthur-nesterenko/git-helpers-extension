@@ -4,14 +4,18 @@ const FORMAT_METHOD_KEY = "formatMethod";
 
 // Git Helpers
 
-const showToastMessage = (text) => {
-  const alert = document.getElementById("alert");
-  alert.classList.toggle("hidden");
-  alert.innerText = text;
-  setTimeout(() => {
-    alert.classList.toggle("hidden");
-  }, 3000);
-};
+const showToastMessage = (() => {
+  let timer;
+  return (text) => {
+    clearTimeout(timer);
+    const alert = document.getElementById("alert");
+    alert.classList.remove("hidden");
+    alert.innerText = text;
+    timer = setTimeout(() => {
+      alert.classList.add("hidden");
+    }, 3000);
+  };
+})();
 
 const createNameConverter = (type) => {
   const converters = {
@@ -37,14 +41,17 @@ const themeManager = () => {
     const isActive = button.dataset.theme === resolvedTheme;
     button.classList.toggle("bg-indigo-500", isActive);
     button.classList.toggle("bg-indigo-300", !isActive);
+    button.setAttribute("aria-pressed", String(isActive));
 
     button.addEventListener("click", (event) => {
       const theme = event.currentTarget.dataset.theme;
       localStorage.setItem("theme", theme);
       document.documentElement.classList.toggle("dark", theme === "dark");
       themeBtns.forEach((btn) => {
-        btn.classList.toggle("bg-indigo-500", btn.dataset.theme === theme);
-        btn.classList.toggle("bg-indigo-300", btn.dataset.theme !== theme);
+        const active = btn.dataset.theme === theme;
+        btn.classList.toggle("bg-indigo-500", active);
+        btn.classList.toggle("bg-indigo-300", !active);
+        btn.setAttribute("aria-pressed", String(active));
       });
     });
   });
