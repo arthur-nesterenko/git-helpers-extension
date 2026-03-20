@@ -134,20 +134,16 @@ ticketNameInput.addEventListener("paste", (event) => {
   setFormattedValue(paste);
 });
 
-const copyTextFromInputToClipboard = (input) => {
+const copyTextFromInputToClipboard = (input, message) => {
   input.select();
   navigator.clipboard.writeText(input.value);
-  showToastMessage("Branch name has been copied to clipboard");
+  showToastMessage(message);
 };
 
-copyBranchNameButton.addEventListener("click", async () => {
-  copyTextFromInputToClipboard(branchNameInput);
-  await navigator.clipboard.writeText(branchName);
-  showToastMessage("Branch name has been copied to clipboard");
+copyBranchNameButton.addEventListener("click", () => {
+  copyTextFromInputToClipboard(branchNameInput, "Branch name copied to clipboard");
 });
 
-copyGitCheckoutButton.addEventListener("click", async () => {
-  copyTextFromInputToClipboard(gitCheckoutInput);
-  await navigator.clipboard.writeText(branchName);
-  showToastMessage("Branch name has been copied to clipboard");
+copyGitCheckoutButton.addEventListener("click", () => {
+  copyTextFromInputToClipboard(gitCheckoutInput, "Checkout command copied to clipboard");
 });
