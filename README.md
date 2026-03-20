@@ -10,7 +10,7 @@ Convert ticket names into clean, valid Git branch names. Supports snake_case and
 
 - Convert any ticket name to a valid Git branch name
 - Snake case (`proj_123_create_profile`) or kebab case (`proj-123-create-profile`)
-- Latin diacritics normalization (e→e, u→u, n→n)
+- Latin diacritics normalization (café → cafe, über → uber, año → ano)
 - One-click copy for branch name or `git checkout -b` command
 - Dark mode with system preference detection
 - Settings persist between sessions
