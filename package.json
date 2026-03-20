@@ -7,7 +7,7 @@
     "prebuild": "rm -rf dist .cache .parcel-cache",
     "build:tailwind": "tailwindcss build src/style.css -c ./tailwind.config.js -o dist/style.css",
     "watch": "parcel watch --no-hmr src/{index.js,index.html}",
-    "build": "yarn build:tailwind && cp -R 'src/manifest.json' 'src/assets' 'dist/' && parcel build src/{index.js,index.html}",
+    "build": "npm run build:tailwind && cp -R 'src/manifest.json' 'src/assets' 'dist/' && parcel build src/{index.js,index.html}",
     "test": "vitest run",
     "test:watch": "vitest"
   },
