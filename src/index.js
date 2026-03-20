@@ -82,7 +82,13 @@ const copyGitCheckoutButton = document.getElementById(
 );
 
 const setFormattedValue = (value) => {
-  if (isEmpty(value.trim())) return;
+  if (!value.trim()) {
+    branchNameInput.value = "";
+    gitCheckoutInput.value = "";
+    copyBranchNameButton.disabled = true;
+    copyGitCheckoutButton.disabled = true;
+    return;
+  }
 
   const type = localStorage.getItem(FORMAT_METHOD_KEY) || "snake";
   const convertTicketNameToNormalBranchName = createNameConverter(type);
@@ -93,13 +99,16 @@ const setFormattedValue = (value) => {
   branchNameInput.value = formattedText;
   gitCheckoutInput.value = `git checkout -b ${formattedText}`;
 
-  const disableCopyButton = isEmpty(formattedText.trim());
+  const disableCopyButton = !formattedText.trim();
   copyBranchNameButton.disabled = disableCopyButton;
   copyGitCheckoutButton.disabled = disableCopyButton;
 };
 
 settingsForm.addEventListener("change", (event) => {
   localStorage.setItem(FORMAT_METHOD_KEY, event.target.value);
+  if (ticketNameInput.value.trim()) {
+    setFormattedValue(ticketNameInput.value);
+  }
 });
 
 // EVENTS
