@@ -1,79 +1,60 @@
-import {
-  toLower,
-  snakeCase,
-  debounce,
-  isEmpty,
-  kebabCase,
-  truncate,
-} from "lodash";
+import { toSnakeCase, toKebabCase, debounce, truncate } from "./utils.js";
 
 const FORMAT_METHOD_KEY = "formatMethod";
 
 // Git Helpers
 
-const showToastMessage = (text) => {
-  const alert = document.getElementById("alert");
-  alert.classList.toggle("hidden");
-  alert.innerText = text;
-  setTimeout(() => {
-    alert.classList.toggle("hidden");
-  }, 3000);
-};
+const showToastMessage = (() => {
+  let timer;
+  return (text) => {
+    clearTimeout(timer);
+    const alert = document.getElementById("alert");
+    alert.classList.remove("hidden");
+    alert.innerText = text;
+    timer = setTimeout(() => {
+      alert.classList.add("hidden");
+    }, 3000);
+  };
+})();
 
 const createNameConverter = (type) => {
-  const converter = {
-    snake: snakeCase,
-    kebab: kebabCase,
-  }[type];
-
+  const converters = {
+    snake: toSnakeCase,
+    kebab: toKebabCase,
+  };
+  const converter = converters[type];
   if (!converter) {
     throw new Error(`Converter type ${type} is not supported`);
   }
-  return (name) => converter(toLower(name));
+  return converter;
 };
 
 const themeManager = () => {
-  const activeClass = "bg-indigo-500";
-  const inactiveClass = "bg-indigo-300";
+  const resolvedTheme = localStorage.theme ||
+    (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  localStorage.setItem("theme", resolvedTheme);
+
+  document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+
   const themeBtns = document.querySelectorAll("[data-theme]");
   themeBtns.forEach((button) => {
-    if (button.dataset.theme === localStorage.theme) {
-      button.classList.add(activeClass);
-      button.classList.remove(inactiveClass);
-    } else {
-      button.classList.remove(activeClass);
-      button.classList.add(inactiveClass);
-    }
+    const isActive = button.dataset.theme === resolvedTheme;
+    button.classList.toggle("bg-indigo-500", isActive);
+    button.classList.toggle("bg-indigo-300", !isActive);
+    button.setAttribute("aria-pressed", String(isActive));
 
     button.addEventListener("click", (event) => {
       const theme = event.currentTarget.dataset.theme;
       localStorage.setItem("theme", theme);
+      document.documentElement.classList.toggle("dark", theme === "dark");
       themeBtns.forEach((btn) => {
-        btn.classList.remove(activeClass);
-        btn.classList.add(inactiveClass);
+        const active = btn.dataset.theme === theme;
+        btn.classList.toggle("bg-indigo-500", active);
+        btn.classList.toggle("bg-indigo-300", !active);
+        btn.setAttribute("aria-pressed", String(active));
       });
-      button.classList.add(activeClass);
-      button.classList.remove(inactiveClass);
-
-      if (theme === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
     });
   });
-
-  if (
-    localStorage.theme === "dark" ||
-    (!("theme" in localStorage) &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches)
-  ) {
-    localStorage.theme = "dark";
-    document.documentElement.classList.add("dark");
-  } else {
-    document.documentElement.classList.remove("dark");
-    localStorage.theme = "light";
-  }
 };
 
 const init = () => {
@@ -101,24 +82,30 @@ const copyGitCheckoutButton = document.getElementById(
 );
 
 const setFormattedValue = (value) => {
-  if (isEmpty(value.trim())) return;
+  if (!value.trim()) {
+    branchNameInput.value = "";
+    gitCheckoutInput.value = "";
+    copyBranchNameButton.disabled = true;
+    copyGitCheckoutButton.disabled = true;
+    return;
+  }
 
   const type = localStorage.getItem(FORMAT_METHOD_KEY) || "snake";
   const convertTicketNameToNormalBranchName = createNameConverter(type);
-  const formattedText = truncate(convertTicketNameToNormalBranchName(value), {
-    length: 255,
-    omission: "",
-  });
+  const formattedText = truncate(convertTicketNameToNormalBranchName(value), 255);
   branchNameInput.value = formattedText;
   gitCheckoutInput.value = `git checkout -b ${formattedText}`;
 
-  const disableCopyButton = isEmpty(formattedText.trim());
+  const disableCopyButton = !formattedText.trim();
   copyBranchNameButton.disabled = disableCopyButton;
   copyGitCheckoutButton.disabled = disableCopyButton;
 };
 
 settingsForm.addEventListener("change", (event) => {
   localStorage.setItem(FORMAT_METHOD_KEY, event.target.value);
+  if (ticketNameInput.value.trim()) {
+    setFormattedValue(ticketNameInput.value);
+  }
 });
 
 // EVENTS
@@ -134,20 +121,16 @@ ticketNameInput.addEventListener("paste", (event) => {
   setFormattedValue(paste);
 });
 
-const copyTextFromInputToClipboard = (input) => {
+const copyTextFromInputToClipboard = (input, message) => {
   input.select();
   navigator.clipboard.writeText(input.value);
-  showToastMessage("Branch name has been copied to clipboard");
+  showToastMessage(message);
 };
 
-copyBranchNameButton.addEventListener("click", async () => {
-  copyTextFromInputToClipboard(branchNameInput);
-  await navigator.clipboard.writeText(branchName);
-  showToastMessage("Branch name has been copied to clipboard");
+copyBranchNameButton.addEventListener("click", () => {
+  copyTextFromInputToClipboard(branchNameInput, "Branch name copied to clipboard");
 });
 
-copyGitCheckoutButton.addEventListener("click", async () => {
-  copyTextFromInputToClipboard(gitCheckoutInput);
-  await navigator.clipboard.writeText(branchName);
-  showToastMessage("Branch name has been copied to clipboard");
+copyGitCheckoutButton.addEventListener("click", () => {
+  copyTextFromInputToClipboard(gitCheckoutInput, "Checkout command copied to clipboard");
 });
